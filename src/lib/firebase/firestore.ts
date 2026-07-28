@@ -1,6 +1,10 @@
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, type Firestore } from "firebase/firestore";
 import { app } from "./app";
 
-const db = getFirestore(app);
+let db: Firestore | null = null;
+
+if (app) {
+  db = getFirestore(app);
+}
 
 export { db };
