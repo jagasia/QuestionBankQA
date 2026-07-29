@@ -42,45 +42,57 @@ function deriveDisplayName(email: string | null | undefined): string | null {
 }
 
 export async function ensureUserProfile(user: User): Promise<UserProfile> {
+  const fallbackRole = deriveRole(user.email);
+  const fallbackDisplayName = user.displayName ?? deriveDisplayName(user.email);
+
   if (!db) {
     return {
       uid: user.uid,
       email: user.email ?? null,
-      displayName: user.displayName ?? null,
+      displayName: fallbackDisplayName,
       photoURL: user.photoURL ?? null,
-      role: deriveRole(user.email),
+      role: fallbackRole,
     };
   }
 
-  const profileRef = doc(db, "users", user.uid);
-  const snapshot = await getDoc(profileRef);
+  try {
+    const profileRef = doc(db, "users", user.uid);
+    const snapshot = await getDoc(profileRef);
+    const now = serverTimestamp();
 
-  const fallbackRole = deriveRole(user.email);
-  const fallbackDisplayName = user.displayName ?? deriveDisplayName(user.email);
-  const now = serverTimestamp();
+    const profileData = {
+      uid: user.uid,
+      email: user.email ?? null,
+      displayName: fallbackDisplayName,
+      photoURL: user.photoURL ?? null,
+      role: snapshot.exists() ? (snapshot.data().role ?? fallbackRole) : fallbackRole,
+      createdAt: snapshot.exists() ? snapshot.data().createdAt ?? now : now,
+      updatedAt: now,
+    };
 
-  const profileData = {
-    uid: user.uid,
-    email: user.email ?? null,
-    displayName: fallbackDisplayName,
-    photoURL: user.photoURL ?? null,
-    role: snapshot.exists() ? (snapshot.data().role ?? fallbackRole) : fallbackRole,
-    createdAt: snapshot.exists() ? snapshot.data().createdAt ?? now : now,
-    updatedAt: now,
-  };
+    await setDoc(profileRef, profileData, { merge: true });
 
-  await setDoc(profileRef, profileData, { merge: true });
+    const refreshedSnapshot = await getDoc(profileRef);
+    const data = refreshedSnapshot.data();
 
-  const refreshedSnapshot = await getDoc(profileRef);
-  const data = refreshedSnapshot.data();
+    return {
+      uid: user.uid,
+      email: data?.email ?? user.email ?? null,
+      displayName: data?.displayName ?? fallbackDisplayName,
+      photoURL: data?.photoURL ?? user.photoURL ?? null,
+      role: (data?.role as UserRole | undefined) ?? fallbackRole,
+      createdAt: data?.createdAt,
+      updatedAt: data?.updatedAt,
+    };
+  } catch (error) {
+    console.warn("Firestore profile sync unavailable; continuing with auth-only profile", error);
 
-  return {
-    uid: user.uid,
-    email: data?.email ?? user.email ?? null,
-    displayName: data?.displayName ?? fallbackDisplayName,
-    photoURL: data?.photoURL ?? user.photoURL ?? null,
-    role: (data?.role as UserRole | undefined) ?? fallbackRole,
-    createdAt: data?.createdAt,
-    updatedAt: data?.updatedAt,
-  };
+    return {
+      uid: user.uid,
+      email: user.email ?? null,
+      displayName: fallbackDisplayName,
+      photoURL: user.photoURL ?? null,
+      role: fallbackRole,
+    };
+  }
 }
