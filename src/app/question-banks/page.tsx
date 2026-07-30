@@ -20,6 +20,9 @@ export default function QuestionBanksPage() {
   const isMountedRef = React.useRef(true);
 
   React.useEffect(() => {
+    // Keep mounted state accurate in React Strict Mode's effect re-run cycle.
+    isMountedRef.current = true;
+
     return () => {
       isMountedRef.current = false;
     };
