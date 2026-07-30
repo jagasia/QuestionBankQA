@@ -10,12 +10,32 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const hasRequiredConfig = Object.values(firebaseConfig).every((value) => typeof value === "string" && value.length > 0);
+const requiredKeys: (keyof FirebaseOptions)[] = [
+  "apiKey",
+  "authDomain",
+  "projectId",
+  "appId",
+];
+
+const hasRequiredConfig = requiredKeys.every((key) => {
+  const value = firebaseConfig[key];
+  return typeof value === "string" && value.length > 0;
+});
 
 let app: FirebaseApp | null = null;
 
 if (hasRequiredConfig) {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+    console.log("Firebase App Options:", app.options);
+  } else {
+    app = getApp();
+  }
+
+  console.log("Firebase config projectId:", app.options.projectId);
+  console.log("Firebase config authDomain:", app.options.authDomain);
+  console.log("Firebase config storageBucket:", app.options.storageBucket);
+  console.log("Firebase config appId:", app.options.appId);
 }
 
 export { app };

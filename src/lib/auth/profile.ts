@@ -85,6 +85,11 @@ export async function ensureUserProfile(user: User): Promise<UserProfile> {
       updatedAt: data?.updatedAt,
     };
   } catch (error) {
+    const firebaseError = error as { code?: string; message?: string; stack?: string };
+    console.log("Firestore profile sync error.code:", firebaseError.code);
+    console.log("Firestore profile sync error.message:", firebaseError.message);
+    console.log("Firestore profile sync error.stack:", firebaseError.stack);
+    console.log("Firestore profile sync FirebaseError object:", error);
     console.warn("Firestore profile sync unavailable; continuing with auth-only profile", error);
 
     return {
