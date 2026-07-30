@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { MockAIProvider } from "@/features/import/ai/providers/MockAIProvider";
 import { TemplateDetectionService } from "@/features/import/ai/TemplateDetectionService";
 import { ExcelImportService } from "@/features/import/services/ExcelImportService";
 
@@ -15,9 +16,10 @@ const ACCEPTED_EXTENSIONS = [".xlsx", ".xls"];
 export default function ImportPage() {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const excelImportService = React.useMemo(() => new ExcelImportService(), []);
+  const aiProvider = React.useMemo(() => new MockAIProvider(), []);
   const templateDetectionService = React.useMemo(
-    () => new TemplateDetectionService(),
-    [],
+    () => new TemplateDetectionService(aiProvider),
+    [aiProvider],
   );
 
   const [selectedFileName, setSelectedFileName] = React.useState("");
