@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { TemplateDetectionService } from "@/features/import/ai/TemplateDetectionService";
 import { ExcelImportService } from "@/features/import/services/ExcelImportService";
-import { PromptBuilder } from "@/features/import/ai/PromptBuilder";
-import { MockAIProvider } from "@/features/import/ai/providers/MockAIProvider";
 
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 const ACCEPTED_EXTENSIONS = [".xlsx", ".xls"];
@@ -16,8 +15,10 @@ const ACCEPTED_EXTENSIONS = [".xlsx", ".xls"];
 export default function ImportPage() {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const excelImportService = React.useMemo(() => new ExcelImportService(), []);
-  const promptBuilder = React.useMemo(() => new PromptBuilder(), []);
-  const aiProvider = React.useMemo(() => new MockAIProvider(), []);
+  const templateDetectionService = React.useMemo(
+    () => new TemplateDetectionService(),
+    [],
+  );
 
   const [selectedFileName, setSelectedFileName] = React.useState("");
   const [promptPreview, setPromptPreview] = React.useState("");
@@ -74,11 +75,9 @@ export default function ImportPage() {
     }
 
     try {
-      const generatedPrompt = await promptBuilder.buildTemplateDetectionPrompt(
+      const rawAiResponse = await templateDetectionService.detectTemplate(
         importedWorkbook,
       );
-
-      const rawAiResponse = await aiProvider.complete(generatedPrompt.content);
       setPromptPreview(rawAiResponse);
     } catch (error) {
       console.error("Failed to generate AI response preview", error);

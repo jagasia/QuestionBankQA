@@ -1,16 +1,19 @@
 import { type ImportedWorkbook } from "../types/ImportedWorkbook";
 import { type AIProvider } from "./AIProvider";
-import { type DetectedTemplate } from "./types/DetectedTemplate";
+import { PromptBuilder } from "./PromptBuilder";
+import { MockAIProvider } from "./providers/MockAIProvider";
 
 /**
- * Contract service for AI-assisted template detection.
+ * Orchestrates template detection prompt generation and AI completion.
  */
 export class TemplateDetectionService {
-  constructor(private readonly aiProvider: AIProvider) {}
+  constructor(
+    private readonly aiProvider: AIProvider = new MockAIProvider(),
+    private readonly promptBuilder: PromptBuilder = new PromptBuilder(),
+  ) {}
 
-  async detectTemplate(_workbook: ImportedWorkbook): Promise<DetectedTemplate> {
-    // Reserved for future provider-backed implementation.
-    void this.aiProvider;
-    throw new Error("Template detection is not implemented.");
+  async detectTemplate(workbook: ImportedWorkbook): Promise<string> {
+    const prompt = await this.promptBuilder.buildTemplateDetectionPrompt(workbook);
+    return this.aiProvider.complete(prompt.content);
   }
 }
