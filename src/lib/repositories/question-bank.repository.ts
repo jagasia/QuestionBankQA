@@ -97,6 +97,10 @@ export class QuestionBankRepository {
 
     const snapshot = await getDocs(questionBanksQuery);
 
+    if (snapshot.empty) {
+      return [];
+    }
+
     return snapshot.docs.map((docSnapshot) => this.mapDocument(docSnapshot));
   }
 

@@ -11,19 +11,6 @@ import { type QuestionBank } from "@/lib/models/question-bank";
 import { QuestionBankService } from "@/lib/services/question-bank.service";
 import { Plus } from "lucide-react";
 
-function getOrganizationIdFromProfile(profile: unknown): string | null {
-  if (!profile || typeof profile !== "object") {
-    return null;
-  }
-
-  if (!("organizationId" in profile)) {
-    return null;
-  }
-
-  const organizationId = profile.organizationId;
-  return typeof organizationId === "string" ? organizationId.trim() : null;
-}
-
 export default function QuestionBanksPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const questionBankService = React.useMemo(() => new QuestionBankService(), []);
@@ -60,12 +47,7 @@ export default function QuestionBanksPage() {
         setErrorMessage(null);
       }
 
-      //jag added this
-        console.log("User:", user);
-        console.log("Profile:", profile);
-        //end of jag added this
-
-      const organizationId = getOrganizationIdFromProfile(profile);
+      const organizationId = profile?.organizationId?.trim();
 
       if (!organizationId) {
         throw new Error("organizationId is missing from the user profile.");
