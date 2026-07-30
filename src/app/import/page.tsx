@@ -77,10 +77,10 @@ export default function ImportPage() {
     }
 
     try {
-      const rawAiResponse = await templateDetectionService.detectTemplate(
+      const detectedTemplate = await templateDetectionService.detectTemplate(
         importedWorkbook,
       );
-      setPromptPreview(rawAiResponse);
+      setPromptPreview(JSON.stringify(detectedTemplate, null, 2));
     } catch (error) {
       console.error("Failed to generate AI response preview", error);
       setValidationMessage(
