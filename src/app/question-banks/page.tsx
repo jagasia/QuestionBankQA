@@ -60,6 +60,11 @@ export default function QuestionBanksPage() {
         setErrorMessage(null);
       }
 
+      //jag added this
+        console.log("User:", user);
+        console.log("Profile:", profile);
+        //end of jag added this
+
       const organizationId = getOrganizationIdFromProfile(profile);
 
       if (!organizationId) {

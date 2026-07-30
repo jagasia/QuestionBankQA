@@ -4,11 +4,14 @@ import { db } from "@/lib/firebase/firestore";
 
 export type UserRole = "Admin" | "QA Lead" | "Reviewer" | "Viewer";
 
+const DEFAULT_ORGANIZATION_ID = "org_default";
+
 export interface UserProfile {
   uid: string;
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  organizationId: string;
   role: UserRole;
   createdAt?: unknown;
   updatedAt?: unknown;
@@ -51,6 +54,7 @@ export async function ensureUserProfile(user: User): Promise<UserProfile> {
       email: user.email ?? null,
       displayName: fallbackDisplayName,
       photoURL: user.photoURL ?? null,
+      organizationId: DEFAULT_ORGANIZATION_ID,
       role: fallbackRole,
     };
   }
@@ -65,6 +69,7 @@ export async function ensureUserProfile(user: User): Promise<UserProfile> {
       email: user.email ?? null,
       displayName: fallbackDisplayName,
       photoURL: user.photoURL ?? null,
+      organizationId: DEFAULT_ORGANIZATION_ID,
       role: snapshot.exists() ? (snapshot.data().role ?? fallbackRole) : fallbackRole,
       createdAt: snapshot.exists() ? snapshot.data().createdAt ?? now : now,
       updatedAt: now,
@@ -80,6 +85,7 @@ export async function ensureUserProfile(user: User): Promise<UserProfile> {
       email: data?.email ?? user.email ?? null,
       displayName: data?.displayName ?? fallbackDisplayName,
       photoURL: data?.photoURL ?? user.photoURL ?? null,
+      organizationId: data?.organizationId ?? DEFAULT_ORGANIZATION_ID,
       role: (data?.role as UserRole | undefined) ?? fallbackRole,
       createdAt: data?.createdAt,
       updatedAt: data?.updatedAt,
@@ -97,6 +103,7 @@ export async function ensureUserProfile(user: User): Promise<UserProfile> {
       email: user.email ?? null,
       displayName: fallbackDisplayName,
       photoURL: user.photoURL ?? null,
+      organizationId: DEFAULT_ORGANIZATION_ID,
       role: fallbackRole,
     };
   }
