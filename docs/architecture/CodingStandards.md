@@ -1,6 +1,6 @@
 # Coding Standards
 
-Status: Accepted
+Status: DESIGN FROZEN
 
 Version: 1.0
 
@@ -125,6 +125,31 @@ Use:
 getX()
 
 for value-returning helper methods.
+
+## Equality
+
+Domain entities should avoid exposing internal fields solely for comparison.
+
+Instead, provide expressive helper methods.
+
+Examples:
+
+- hasFingerprint(...)
+- isVersion(...)
+- isMappedTo(...)
+- belongsTo(...)
+
+These methods improve readability and prevent business logic from spreading throughout the application.
+
+## Exceptions
+
+Throw descriptive Error messages that explain:
+
+- which entity failed validation
+- which field is invalid
+- why it is invalid
+
+Error messages should help developers diagnose problems quickly.
 
 ## Documentation
 
@@ -256,6 +281,6 @@ private validate(props: EntityProps): void {
 
 ## Status
 
-Status: Accepted
+Status: DESIGN FROZEN
 
 Future changes require architectural review.
