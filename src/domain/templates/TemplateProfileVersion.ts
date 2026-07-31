@@ -1,4 +1,4 @@
-import { ColumnMapping } from "../../features/mapping/domain/ColumnMapping";
+import { ColumnMapping } from "./ColumnMapping";
 
 export interface TemplateProfileVersionProps {
   id: string;
