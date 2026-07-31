@@ -68,6 +68,20 @@ export class TemplateProfileVersion {
   }
 
   /**
+   * Returns this version's sequential number.
+   */
+  public getVersionNumber(): number {
+    return this.versionNumber;
+  }
+
+  /**
+   * Returns this version's fingerprint.
+   */
+  public getFingerprint(): string {
+    return this.fingerprint;
+  }
+
+  /**
    * Returns true when at least one mapping targets the provided canonical field.
    */
   public containsCanonicalField(fieldName: string): boolean {
