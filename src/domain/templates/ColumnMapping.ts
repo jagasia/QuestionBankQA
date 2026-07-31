@@ -8,6 +8,19 @@
  * Once created, the mapping is immutable and may later become part of
  * a reusable Template Profile.
  */
+export interface ColumnMappingProps {
+	id: string;
+	sourceColumn: string;
+	canonicalField: string;
+	confidence: number;
+	approvedBy: string;
+	approvedAt: Date;
+}
+
+/**
+ * Represents the final mapping approved by a user between one source
+ * spreadsheet column and one field in the Canonical Question Model.
+ */
 export class ColumnMapping {
 	/** Unique identifier for this mapping. */
 	public readonly id: string;
@@ -24,37 +37,31 @@ export class ColumnMapping {
 	/** User identifier of the approver. */
 	public readonly approvedBy: string;
 
-	/** Timestamp when the mapping was approved. */
-	public readonly approvedAt: Date;
+	private readonly approvedAtValue: Date;
 
-	constructor(params: {
-		id: string;
-		sourceColumn: string;
-		canonicalField: string;
-		confidence: number;
-		approvedBy: string;
-		approvedAt: Date;
-	}) {
-		this.id = params.id;
-		this.sourceColumn = params.sourceColumn;
-		this.canonicalField = params.canonicalField;
-		this.confidence = params.confidence;
-		this.approvedBy = params.approvedBy;
-		this.approvedAt = params.approvedAt;
+	constructor(props: ColumnMappingProps) {
+		this.validate(props);
 
-		this.validate();
+		this.id = props.id;
+		this.sourceColumn = props.sourceColumn;
+		this.canonicalField = props.canonicalField;
+		this.confidence = props.confidence;
+		this.approvedBy = props.approvedBy;
+		this.approvedAtValue = new Date(props.approvedAt.getTime());
+
+		Object.freeze(this);
 	}
 
 	/**
 	 * Validates core domain invariants for this mapping.
 	 */
-	private validate(): void {
-		this.validateNonEmptyString(this.id, "id");
-		this.validateNonEmptyString(this.sourceColumn, "sourceColumn");
-		this.validateNonEmptyString(this.canonicalField, "canonicalField");
-		this.validateNonEmptyString(this.approvedBy, "approvedBy");
-		this.validateConfidence(this.confidence);
-		this.validateApprovedAt(this.approvedAt);
+	private validate(props: ColumnMappingProps): void {
+		this.validateNonEmptyString(props.id, "id");
+		this.validateNonEmptyString(props.sourceColumn, "sourceColumn");
+		this.validateNonEmptyString(props.canonicalField, "canonicalField");
+		this.validateNonEmptyString(props.approvedBy, "approvedBy");
+		this.validateConfidence(props.confidence);
+		this.validateApprovedAt(props.approvedAt);
 	}
 
 	/**
@@ -62,6 +69,13 @@ export class ColumnMapping {
 	 */
 	public isMappedTo(canonicalField: string): boolean {
 		return this.canonicalField === canonicalField;
+	}
+
+	/**
+	 * Returns the approval timestamp as a defensive copy.
+	 */
+	public get approvedAt(): Date {
+		return new Date(this.approvedAtValue.getTime());
 	}
 
 	private validateNonEmptyString(value: string, fieldName: string): void {

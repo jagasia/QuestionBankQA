@@ -135,6 +135,17 @@ export class TemplateProfile {
   }
 
   /**
+   * Returns the first version matching the provided fingerprint, or undefined when absent.
+   */
+  public findVersionByFingerprint(
+    fingerprint: string,
+  ): TemplateProfileVersion | undefined {
+    this.validateNonEmptyString(fingerprint, "fingerprint");
+
+    return this.versionsValue.find((version) => version.hasFingerprint(fingerprint));
+  }
+
+  /**
    * Returns the creation timestamp as a defensive copy.
    */
   public get createdAt(): Date {
